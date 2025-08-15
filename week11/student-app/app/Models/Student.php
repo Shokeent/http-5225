@@ -11,17 +11,8 @@ class Student extends Model
     use HasFactory;
 
     protected $fillable = [
-        'first_name',
-        'last_name',
+        'fname',
+        'lname',
         'email',
-        'student_number',
-        'program',
-        'date_of_birth',
-        'phone',
-        'address'
-    ];
-
-    protected $casts = [
-        'date_of_birth' => 'date'
     ];
 }
