@@ -44,6 +44,27 @@
                             @enderror
                             <div class="form-text">Provide a detailed description of the course content and objectives.</div>
                         </div>
+
+                        <div class="mb-3">
+                            <label for="professor_id" class="form-label">
+                                <i class="bi bi-person-workspace me-1"></i>Select Professor (Optional)
+                            </label>
+                            <select class="form-select @error('professor_id') is-invalid @enderror" name="professor_id" id="professor_id">
+                                <option value="">No professor assigned</option>
+                                @foreach($professors as $professor)
+                                    <option value="{{ $professor->id }}" {{ old('professor_id') == $professor->id ? 'selected' : '' }}>
+                                        {{ $professor->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('professor_id')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <div class="form-text">
+                                <i class="bi bi-info-circle me-1"></i>
+                                Assign a professor to teach this course
+                            </div>
+                        </div>
                     </form>
                 </div>
                 <div class="card-footer">

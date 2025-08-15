@@ -57,6 +57,7 @@ class CourseFactory extends Factory
         return [
             'name' => $courses[$courseIndex],
             'description' => $descriptions[$courseIndex] . ' ' . fake()->sentence(10),
+            'professor_id' => \App\Models\Professor::factory(),
         ];
     }
 }

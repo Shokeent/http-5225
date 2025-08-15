@@ -13,5 +13,22 @@ class Course extends Model
     protected $fillable = [
         'name',
         'description',
+        'professor_id',
     ];
+
+    /**
+     * The students that belong to the course.
+     */
+    public function students()
+    {
+        return $this->belongsToMany(Student::class);
+    }
+
+    /**
+     * Get the professor that owns the course.
+     */
+    public function professor()
+    {
+        return $this->belongsTo(Professor::class);
+    }
 }

@@ -58,6 +58,27 @@
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
+
+                        <div class="mb-3">
+                            <label for="courses" class="form-label">
+                                <i class="bi bi-book me-1"></i>Select Courses (Optional)
+                            </label>
+                            <select class="form-select @error('courses') is-invalid @enderror" name="courses[]" id="courses" multiple>
+                                <option value="">Select courses...</option>
+                                @foreach($courses as $course)
+                                    <option value="{{ $course->id }}" {{ in_array($course->id, old('courses', [])) ? 'selected' : '' }}>
+                                        {{ $course->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('courses')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <div class="form-text">
+                                <i class="bi bi-info-circle me-1"></i>
+                                Hold Ctrl (Windows) or Cmd (Mac) to select multiple courses
+                            </div>
+                        </div>
                     </form>
                 </div>
                 <div class="card-footer">

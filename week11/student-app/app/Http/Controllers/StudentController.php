@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreStudentRequest;
 use App\Http\Requests\UpdateStudentRequest;
 use App\Models\Student;
+use App\Models\Course;
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Exception;
@@ -29,7 +30,12 @@ class StudentController extends Controller
      */
     public function create()
     {
-        return view('students.create');
+        try {
+            $courses = Course::all();
+            return view('students.create', compact('courses'));
+        } catch (\Exception $e) {
+            return redirect()->route('students.index')->with('error', 'Error loading create form: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -38,12 +44,16 @@ class StudentController extends Controller
     public function store(StoreStudentRequest $request)
     {
         try {
-            Student::create($request->validated());
+            $student = Student::create($request->validated());
+            
+            // Attach courses if any were selected
+            if ($request->has('courses')) {
+                $student->courses()->attach($request->courses);
+            }
+            
             return redirect()->route('students.index')->with('success', 'Student created successfully!');
-        } catch (Exception $e) {
-            return redirect()->back()
-                ->withInput()
-                ->with('error', 'Failed to create student. Please try again.');
+        } catch (\Exception $e) {
+            return redirect()->back()->withInput()->with('error', 'Error creating student: ' . $e->getMessage());
         }
     }
 
@@ -67,11 +77,10 @@ class StudentController extends Controller
     public function edit(Student $student)
     {
         try {
-            return view('students.edit', compact('student'));
-        } catch (ModelNotFoundException $e) {
-            return redirect()->route('students.index')->with('error', 'Student not found.');
-        } catch (Exception $e) {
-            return redirect()->route('students.index')->with('error', 'Unable to edit student.');
+            $courses = Course::all();
+            return view('students.edit', compact('student', 'courses'));
+        } catch (\Exception $e) {
+            return redirect()->route('students.index')->with('error', 'Error loading edit form: ' . $e->getMessage());
         }
     }
 
@@ -82,13 +91,17 @@ class StudentController extends Controller
     {
         try {
             $student->update($request->validated());
-            return redirect()->route('students.show', $student->id)->with('success', 'Student updated successfully!');
-        } catch (ModelNotFoundException $e) {
-            return redirect()->route('students.index')->with('error', 'Student not found.');
-        } catch (Exception $e) {
-            return redirect()->back()
-                ->withInput()
-                ->with('error', 'Failed to update student. Please try again.');
+            
+            // Sync courses (this will remove existing and add new ones)
+            if ($request->has('courses')) {
+                $student->courses()->sync($request->courses);
+            } else {
+                $student->courses()->detach(); // Remove all courses if none selected
+            }
+            
+            return redirect()->route('students.index')->with('success', 'Student updated successfully!');
+        } catch (\Exception $e) {
+            return redirect()->back()->withInput()->with('error', 'Error updating student: ' . $e->getMessage());
         }
     }
 

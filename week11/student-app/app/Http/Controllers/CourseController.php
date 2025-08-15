@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\StoreCourseRequest;
 use App\Http\Requests\UpdateCourseRequest;
 use App\Models\Course;
+use App\Models\Professor;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Exception;
 
@@ -28,7 +29,12 @@ class CourseController extends Controller
      */
     public function create()
     {
-        return view('courses.create');
+        try {
+            $professors = Professor::all();
+            return view('courses.create', compact('professors'));
+        } catch (\Exception $e) {
+            return redirect()->route('courses.index')->with('error', 'Error loading create form: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -66,7 +72,8 @@ class CourseController extends Controller
     public function edit(Course $course)
     {
         try {
-            return view('courses.edit', compact('course'));
+            $professors = Professor::all();
+            return view('courses.edit', compact('course', 'professors'));
         } catch (ModelNotFoundException $e) {
             return redirect()->route('courses.index')->with('error', 'Course not found.');
         } catch (Exception $e) {
